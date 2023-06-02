@@ -1,11 +1,10 @@
-import os
-from datetime import datetime
 import requests
-from urllib.request import Request, urlopen
+import os
+from s3_handler import persist
+
 
 SITE = os.environ['site']  # URL of the site to check, stored in the site environment variable
 EXPECTED = os.environ['expected']  # String expected to be on the page, stored in the expected environment variable
-
 
 def validate(res):
     '''Return False to trigger the canary
@@ -17,35 +16,22 @@ def validate(res):
     return EXPECTED in res
 
 
-def task(url, payload={}):
+def task(url, method='GET', payload=None):
+    if payload is None:
+        payload = {}
     resp = None
     try:
-        resp = requests.get(url, data=payload)
+        resp = requests.request(method, url, params=payload, data=payload)
     except requests.exceptions.HTTPError:
-        print (f"Error resp: {resp.status_code}" )
+        print(f"Error resp: {resp.status_code}")
         return None
     except requests.exceptions.Timeout:
-        print ('Error TimedOut')
+        print('Error TimedOut')
         return None
     return resp.json()
 
 
-def old_handler(event,context):
-    print('Checking {} at {}...'.format(SITE, event['time']))
-    try:
-        req = Request(SITE, headers={'User-Agent': 'AWS Lambda'})
-        if not validate(str(urlopen(req).read())):
-            raise Exception('Validation failed')
-    except:
-        print('Check failed!')
-        raise
-    else:
-        print('Check passed!')
-        return event['time']
-    finally:
-        print('Check complete at {}'.format(str(datetime.now())))
-
-
 def lambda_handler(event, context):
     ret = task(SITE)
-    print(f"{ret}")
+    if ret:
+        persist(SITE, ret)
