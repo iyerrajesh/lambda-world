@@ -10,6 +10,10 @@ S3_BUCKET = os.environ['s3_bucket']
 
 
 def get_id():
+    """
+    Get a 12 char unique ID
+    :return:
+    """
     uid = uuid.uuid4()
     m = hashlib.md5(uid.bytes)
     return m.hexdigest()[:12]
