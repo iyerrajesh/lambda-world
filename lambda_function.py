@@ -1,10 +1,11 @@
-import requests
 import os
+import requests
 from s3_handler import persist
 
 
-SITE = os.environ['site']  # URL of the site to check, stored in the site environment variable
-EXPECTED = os.environ['expected']  # String expected to be on the page, stored in the expected environment variable
+SITE = os.environ['site']
+EXPECTED = os.environ['expected']
+
 
 def validate(res):
     '''Return False to trigger the canary

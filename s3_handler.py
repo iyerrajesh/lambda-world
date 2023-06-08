@@ -1,10 +1,11 @@
 import logging
-import boto3
-from botocore.exceptions import ClientError
 import os
 import uuid
 import json
 import hashlib
+import boto3
+from botocore.exceptions import ClientError
+
 
 S3_BUCKET = os.environ['s3_bucket']
 
@@ -20,6 +21,12 @@ def get_id():
 
 
 def persist(url, data):
+    """
+
+    :param url:
+    :param data:
+    :return:
+    """
 
     file_name = get_id()
     s3_client = boto3.client('s3')
